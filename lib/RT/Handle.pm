@@ -2782,6 +2782,8 @@ sub _LoadObject {
         $object->LoadByValues(
             PrincipalId   => $principal_id,
             PrincipalType => $principal_type,
+            ObjectType    => 'RT::System',
+            ObjectId      => RT->System->Id,
             map { $_ => $values->{_Original}{$_} } grep { $values->{_Original}{$_} } qw/ObjectType ObjectId RightName/,
         );
     }
