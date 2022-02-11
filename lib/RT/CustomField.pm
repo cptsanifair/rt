@@ -2307,6 +2307,8 @@ sub CleanupDefaultValues {
     }
 }
 
+sub IsNumeric { 0 }
+
 =head2 id
 
 Returns the current value of id. 
