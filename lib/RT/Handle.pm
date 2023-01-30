@@ -1343,7 +1343,53 @@ sub InsertData {
                     delete $item->{'BasedOn'};
                 }
 
-            } 
+            }
+
+            my $cf_check = RT::CustomField->new($RT::SystemUser);
+            my ($found) = $cf_check->LoadByName(
+                Name       => $item->{'Name'},
+                LookupType => $item->{LookupType} // 'RT::Queue-RT::Ticket',
+                IncludeGlobal => 1,
+            );
+            if ($found) {
+                my ( $is_global, $is_applied, $what );
+
+                if ( $cf_check->IsGlobal ) {
+                    $is_global = 1;
+                } else {
+                    $is_applied = $cf_check->IsAddedToAny;
+                    my $thing;
+                    my $class = $cf_check->RecordClassFromLookupType(
+                        $item->{LookupType} );
+                    if ($class) {
+                        $thing    = $class->new( RT->SystemUser );
+                        $apply_to = [$apply_to] unless ref $apply_to;
+                        foreach my $key ( @{$apply_to} ) {
+                            my ( $ok, $msg ) = $thing->Load($key);
+                            if ($ok) {
+                                my $ocf = RT::ObjectCustomField->new(
+                                    RT->SystemUser );
+                                ($is_applied) = $ocf->LoadByCols(
+                                    CustomField => $cf_check->id,
+                                    ObjectId    => $thing->id,
+                                );
+                                if ($is_applied) {
+                                    $what = "$class $key";
+                                    last;
+                                }
+                            }
+                        }
+                    }
+                }
+                if ( $is_global or $is_applied ) {
+                    $RT::Logger->warn( "Custom field "
+                            . $item->{Name}
+                            . " already exists"
+                            . ( $is_global ? " globally" : " for $what" )
+                            . ". Skipping." );
+                    next;
+                }
+            }
 
             my ( $return, $msg ) = $new_entry->Create(%$item);
             unless( $return ) {

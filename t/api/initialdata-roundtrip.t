@@ -1069,6 +1069,7 @@ for my $test (@tests) {
             qr/^Invalid value for Name$/,
             qr/^Queue already exists$/,
             qr/^Invalid Name \(names must be unique and may not be all digits\)$/,
+            qr/^Custom field .* already exists/,
         );
 
         # Avoid reporting this anonymous call frame as the source of the warning
