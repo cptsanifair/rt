@@ -51,14 +51,19 @@
 
 <form method="post" name="UpdateSearches" class="mx-auto max-width-lg">
   <& /Widgets/SearchSelection,
-    pane_name => \%pane_name,
-    sections  => \@sections,
-    selected  => \%selected,
-    filters   => \@filters,
+    pane_name       => \%pane_name,
+    sections        => \@sections,
+    selected        => \%selected,
+    filters         => \@filters,
+    dashboard_setup => $dashboard_setup,
+    body_width      => $Dashboard->Width->{ body },
+    sidebar_width   => $Dashboard->Width->{ sidebar },
   &>
   <& /Elements/Submit, Name => "UpdateSearches", Label => loc('Save') &>
 </form>
 <%INIT>
+my $req_uri = RT::Interface::Web::RequestENV('REQUEST_URI');
+my $dashboard_setup = $req_uri =~ m{^/Dashboards/Queries.html|/Admin/Global/SelfServiceHomePage.html} ? 1 : 0;
 my @results;
 
 # Don't permit someone to supply "self_service_dashboard=1" on the URL line
