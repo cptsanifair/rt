@@ -1,0 +1,16 @@
+Use the steps below to build the turbo JS file for RT. If you don't have
+them, you will need to install recent versions of: yarn, node, tsc, jsmin
+and all dependencies.
+
+1) Download the tarball from Releases on GitHub for the version you want.
+2) Unpack.
+3) In the unpacked turbo directory, run:
+
+    yarn run build
+
+   That should create dist/turbo.es2017-esm.js
+4) To create a minified version:
+
+    jsmin <dist/turbo.es2017-esm.js > dist/turbo.es2017-esm.min.js
+
+5) Copy the new file to RT's share/static/js.

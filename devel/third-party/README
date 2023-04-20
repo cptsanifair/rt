@@ -105,3 +105,8 @@ License: MIT and GPL
 Description: bubble-like multiple user inputs
 Origin: https://selectize.github.io/selectize.js/
 License: Apache
+
+* turbo-7.3.0
+Description: JS framework to speed up web sites
+Origin: https://github.com/hotwired/turbo
+License: MIT

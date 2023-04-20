@@ -53,6 +53,7 @@ $onload => undef
 % for my $jsfile ( @js_files ) {
 <script type="text/javascript" src="<%RT->Config->Get('WebPath')%><% $jsfile %>"></script>
 % }
+<script type="module" src="/static/js/turbo.es2017-esm.min.js"></script>
 
 <script type="text/javascript"><!--
 % if ( $focus ) {
