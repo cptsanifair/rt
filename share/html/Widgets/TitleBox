@@ -45,20 +45,75 @@
 %# those contributions and any derivatives thereof.
 %#
 %# END BPS TAGGED BLOCK }}}
+
+% if ( not $turbo_frame ) {
 <div class="<% $class %>">
-% if ($hide_chrome) {
-  <% $content | n %>
-% } else {
-  <& TitleBoxStart, %ARGS &><% $content | n %><& TitleBoxEnd &>
 % }
+
+% if ( not $hide_chrome ) {
+  <& TitleBoxStart, %ARGS &>
+% }
+
+%   if ( $turbo_frame ) {
+      <& TurboFrameStart, turbo_id => $turbo_id, turbo_src => $turbo_src &>
+%  }
+
+<% $content | n %>
+
+%   if ( $turbo_frame ) {
+      <& TurboFrameEnd &>
+%  }
+
+% if ( not $hide_chrome ) {
+  <& TitleBoxEnd &>
+% }
+
+% if ( not $turbo_frame ) {
 </div>
+% }
+
 <%ARGS>
 $class => ''
 $hide_empty => 0
 $hide_chrome => 0
+$turbo_frame => 0
+$turbo_id => undef
+$turbo_src => undef
 </%ARGS>
 <%INIT>
-my $content = $m->content;
+
+# With $turbo_frame => 1, TitleBox builds the box and the title on the
+# initial load with a turbo frame inside and no content. Turbo will then
+# issue another request to load the body.
+
+# Pass $turbo_frame => 0 to build an entire component on the initial
+# render like pre-turbo RT.
+
+my $content;
+
+if ( $m->request_path =~ /^\/Views/ ) {
+    # Turbo refresh, send content with no titlebox
+    $m->out( $m->content );
+    return;
+}
+elsif ( $m->notes('ComponentForTitle') ) {
+    # Request for a mason component, set up turbo tags
+    my $name = $m->notes('ComponentForTitle');
+    $turbo_frame = 1;
+    $turbo_id = 'component-' . lc($name);
+    $turbo_src = '/Views/Component/' . $name;
+    $m->notes->{'ComponentForTitle'} = 0;
+}
+elsif ( $m->request_path =~ /^\/index\.html$/ ) {
+    # Homepage load that isn't a search or a component
+    $content = '';
+}
+
+# Regular request, show the content
+unless ( length $content ) {
+    $content = $m->content;
+}
+
 $m->callback( CallbackName => "ModifyContent", ARGSRef => \%ARGS, Content => \$content,
     Class => \$class, HideEmpty => \$hide_empty, HideChrome => \$hide_chrome );
 return if $hide_empty && $content =~ /^\s*$/s;

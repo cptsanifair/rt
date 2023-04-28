@@ -446,7 +446,10 @@ sub HandleRequest {
     # Process per-page final cleanup callbacks
     $HTML::Mason::Commands::m->callback( %$ARGS, CallbackName => 'Final', CallbackPage => '/autohandler' );
 
-    $HTML::Mason::Commands::m->comp( '/Elements/Footer', %$ARGS );
+    # Don't show the footer for Turbo components
+    if ( $HTML::Mason::Commands::m->request_path !~ /^\/Views/ ) {
+        $HTML::Mason::Commands::m->comp( '/Elements/Footer', %$ARGS );
+    }
 }
 
 sub _ForceLogout {

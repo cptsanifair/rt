@@ -45,68 +45,28 @@
 %# those contributions and any derivatives thereof.
 %#
 %# END BPS TAGGED BLOCK }}}
-% $m->callback( %ARGS, CallbackName => 'Header' );
-<& /Elements/Header, Title => loc('Login'), Focus => '#user', RichText => 0 &>
-% # Close div for rt-header-container started in Header
-</div>
-
-<div id="body" class="login-body">
-
-<& /Elements/ListActions,
-    title       => loc('Error'),
-    titlebox    => { class => 'error', hideable => 0 },
-    actions     => $actions
-&>
-
-% $m->callback( %ARGS, CallbackName => 'BeforeForm' );
-
-<div id="login-box">
-<&| /Widgets/TitleBox, title => loc('Login'), titleright => $RT::VERSION, hideable => 0, turbo_frame => 0 &>
-
-<& LoginRedirectWarning, %ARGS &>
-
-% unless (RT->Config->Get('WebRemoteUserAuth') and !RT->Config->Get('WebFallbackToRTLogin')) {
-<form id="login" name="login" method="post" action="<% RT->Config->Get('WebPath') %>/NoAuth/Login.html">
-
-  <&| /Elements/LabeledValue, Label => loc("Username") &>
-    <input class="form-control" type="text" name="user" value="<%$user%>" id="user" autocapitalize="off" />
-  </&>
-
-  <&| /Elements/LabeledValue, Label => loc("Password") &>
-    <input class="form-control" type="password" name="pass" />
-  </&>
-
-<input type="hidden" name="next" value="<% $next %>" />
-
-<script type="text/javascript">
-jQuery(function(){
-    if (window.location.hash) {
-        var form = jQuery("form[name=login]");
-        form.attr('action', form.attr('action') + '#' + window.location.hash.replace(/^#/, ''));
-    }
-});
-</script>
-
-  <div class="form-row">
-    <div class="col-12 text-right">
-      <input type="submit" class="form-control btn btn-primary" value="<&|/l&>Login</&>" />
-    </div>
-  </div>
-
-%# Give callbacks a chance to add more control elements
-% $m->callback( %ARGS );
-
-</form>
+% if ( $component_name eq 'SavedSearch' ) {
+<turbo-frame id="savedsearch-<%lc($ARGS{SavedSearch})%>">
+% $m->comp( "/Elements/ShowSearch", %ARGS,  );
+% } else {
+<turbo-frame id="component-<%$component_name%>">
+% $m->comp( "/Elements/$component_name" );
 % }
-</&>
-<& /Elements/LoginHelp &>
-</div><!-- #login-box -->
-% $m->callback( %ARGS, CallbackName => 'AfterForm' );
-% # Omit closing div for login-body because Footer adds a closing div,
-% # normally for the PageLayout template
-<& /Elements/Footer, Menu => 0 &>
-<%ARGS>
-$next => ''
-$user => ""
-$actions => undef
-</%ARGS>
+</turbo-frame>
+
+<%init>
+my ($component_name) = $m->dhandler_arg;
+
+if ( $component_name eq 'SavedSearch' ) {
+    # Put Override args in the correct structure
+    $ARGS{Override} = {};
+    foreach my $override ( qw(Rows) ) {
+        if ( $ARGS{$override} ) {
+            $ARGS{Override}->{$override} = $ARGS{$override};
+            delete $ARGS{$override};
+        }
+    }
+}
+</%init>
+<%args>
+</%args>

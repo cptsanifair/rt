@@ -45,68 +45,18 @@
 %# those contributions and any derivatives thereof.
 %#
 %# END BPS TAGGED BLOCK }}}
-% $m->callback( %ARGS, CallbackName => 'Header' );
-<& /Elements/Header, Title => loc('Login'), Focus => '#user', RichText => 0 &>
-% # Close div for rt-header-container started in Header
-</div>
-
-<div id="body" class="login-body">
-
-<& /Elements/ListActions,
-    title       => loc('Error'),
-    titlebox    => { class => 'error', hideable => 0 },
-    actions     => $actions
-&>
-
-% $m->callback( %ARGS, CallbackName => 'BeforeForm' );
-
-<div id="login-box">
-<&| /Widgets/TitleBox, title => loc('Login'), titleright => $RT::VERSION, hideable => 0, turbo_frame => 0 &>
-
-<& LoginRedirectWarning, %ARGS &>
-
-% unless (RT->Config->Get('WebRemoteUserAuth') and !RT->Config->Get('WebFallbackToRTLogin')) {
-<form id="login" name="login" method="post" action="<% RT->Config->Get('WebPath') %>/NoAuth/Login.html">
-
-  <&| /Elements/LabeledValue, Label => loc("Username") &>
-    <input class="form-control" type="text" name="user" value="<%$user%>" id="user" autocapitalize="off" />
-  </&>
-
-  <&| /Elements/LabeledValue, Label => loc("Password") &>
-    <input class="form-control" type="password" name="pass" />
-  </&>
-
-<input type="hidden" name="next" value="<% $next %>" />
-
-<script type="text/javascript">
-jQuery(function(){
-    if (window.location.hash) {
-        var form = jQuery("form[name=login]");
-        form.attr('action', form.attr('action') + '#' + window.location.hash.replace(/^#/, ''));
-    }
-});
-</script>
-
-  <div class="form-row">
-    <div class="col-12 text-right">
-      <input type="submit" class="form-control btn btn-primary" value="<&|/l&>Login</&>" />
-    </div>
-  </div>
-
-%# Give callbacks a chance to add more control elements
-% $m->callback( %ARGS );
-
-</form>
+<turbo-frame id="<% $turbo_id %>" src="<% $turbo_src %>" <% $lazy_load ? 'loading=lazy ' : '' %>target="_top">
+% if ( $show_spinner ) {
+<div class="text-center"><div class="spinner-border text-secondary" role="status"><span class="sr-only">Loading...</span></div></div>
 % }
-</&>
-<& /Elements/LoginHelp &>
-</div><!-- #login-box -->
-% $m->callback( %ARGS, CallbackName => 'AfterForm' );
-% # Omit closing div for login-body because Footer adds a closing div,
-% # normally for the PageLayout template
-<& /Elements/Footer, Menu => 0 &>
 <%ARGS>
-$next => ''
-$user => ""
-$actions => undef
+$turbo_id => undef
+$turbo_src => undef
+$show_spinner => 1
+$lazy_load => 1
 </%ARGS>
+
+<%init>
+RT->Logger->error("No turbo_id provided. Turbo needs an id to find the correct frame to replace.") unless $turbo_id;
+RT->Logger->error("No turbo_src provided. Turbo needs a src path to issue the request for content.") unless $turbo_src;
+</%init>
