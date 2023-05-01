@@ -237,6 +237,20 @@ sub IsToken {
     my $self = shift;
     my $value = shift;
 
+    # check if token has expired
+    if ( my $expires = $self->__Value('Expires') ) {
+        my $expiresObj = RT::Date->new( $self->CurrentUser );
+        my $nowObj     = RT::Date->new( $self->CurrentUser );
+
+        $expiresObj->Set( Format => 'ISO', Value => $expires );
+        $nowObj->SetToNow();
+
+        if ( $expiresObj->Unix < $nowObj->Unix ) {
+            $RT::Logger->debug("Auth Token has expired.");
+            return 0;
+        }
+    }
+
     my $stored = $self->__Value('Token');
 
     # If it's a new-style (>= RT 4.0) password, it starts with a '!'
