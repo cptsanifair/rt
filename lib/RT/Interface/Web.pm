@@ -314,6 +314,15 @@ sub HandleRequest {
 
     ValidateWebConfig();
 
+    # Load before ARGS processing because we might pull some ARGS
+    # from the session.
+    $HTML::Mason::Commands::m->comp( '/Elements/SetupSessionCookie', %$ARGS );
+    SendSessionCookie();
+
+    # Respond to POST requests with a 303, or load ARGS
+    # from a previous request.
+    $ARGS = ProcessPostRedirectGet($ARGS);
+
     DecodeARGS($ARGS);
     local $HTML::Mason::Commands::DECODED_ARGS = $ARGS;
     PreprocessTimeUpdates($ARGS);
@@ -341,9 +350,6 @@ sub HandleRequest {
 
     MaybeRebuildCustomRolesCache();
     RT->System->MaybeRebuildLifecycleCache();
-
-    $HTML::Mason::Commands::m->comp( '/Elements/SetupSessionCookie', %$ARGS );
-    SendSessionCookie();
 
     if ( _UserLoggedIn() ) {
         # make user info up to date
@@ -735,6 +741,45 @@ sub InitializeMenu {
 
 }
 
+sub ProcessPostRedirectGet {
+    my $ARGS = shift;
+
+    # Respond immediately to a POST with a 303. This helps avoid
+    # double-submits on forms. See:
+    # https://en.wikipedia.org/wiki/Post/Redirect/Get
+    # It's also required for Turbo-submitted forms.
+
+    if ( RequestENV('REQUEST_METHOD') eq 'POST' ) {
+        # Stash the submitted args in the session
+        my $post_args_ref = $HTML::Mason::Commands::m->request_args();
+
+        my $key = Digest::MD5::md5_hex( rand(1024) );
+        RT::Interface::Web::Session::Set(
+            Key    => 'POST_ARGSRef',
+            SubKey => $key,
+            Value  => $post_args_ref,
+        );
+
+        HTML::Mason::Commands::MaybeRedirectForResults( Force => 1, Key => $key );
+    }
+
+    if ( RequestENV('REQUEST_METHOD') eq 'GET'
+         && $ARGS->{'results'}
+         && $HTML::Mason::Commands::session{'POST_ARGSRef'}{$ARGS->{'results'}} ) {
+        # This is a request after a POST 303.
+        # Reload %ARGS from the session so they can be processed.
+        my %ARGS = %{$HTML::Mason::Commands::session{'POST_ARGSRef'}{$ARGS->{'results'}}};
+
+        RT::Interface::Web::Session::Delete(
+            Key    => 'POST_ARGSRef',
+            SubKey => $ARGS{'results'},
+        );
+
+        return \%ARGS;
+    }
+
+    return $ARGS;
+}
 
 =head2 ShowRequestedPage  \%ARGS
 
@@ -2361,6 +2406,7 @@ sub MaybeRedirectForResults {
         Anchor    => undef,
         Actions   => undef,
         Force     => 0,
+        Key       => undef,
         @_
     );
     my $has_actions = $args{'Actions'} && grep( defined, @{ $args{'Actions'} } );
@@ -2369,7 +2415,7 @@ sub MaybeRedirectForResults {
     my %arguments = %{ $args{'Arguments'} };
 
     if ( $has_actions ) {
-        my $key = Digest::MD5::md5_hex( rand(1024) );
+        my $key = $args{'Key'} // Digest::MD5::md5_hex( rand(1024) );
         my $actions_ref = [];
         if ( $session{"Actions"}{ $key } ) {
             $actions_ref = $session{"Actions"}{ $key };
@@ -2383,6 +2429,9 @@ sub MaybeRedirectForResults {
         );
 
         $arguments{'results'} = $key;
+    }
+    elsif ( $args{'Key'} ) {
+        $arguments{'results'} = $args{'Key'};
     }
 
     $args{'Path'} =~ s!^/+!!;
