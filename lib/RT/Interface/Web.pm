@@ -5270,6 +5270,7 @@ sub ProcessAuthToken {
             my ( $ok, $msg, $auth_string ) = $token->Create(
                 Owner       => $args_ref->{Owner},
                 Description => $args_ref->{Description},
+                Expires     => $args_ref->{Expires},
             );
             if ($ok) {
                 push @results, $msg;

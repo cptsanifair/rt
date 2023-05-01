@@ -81,6 +81,10 @@ object's CurrentUser, then the AdminUsers permission is required.
 
 A human-readable description of what this token will be used for.
 
+=item Expires
+
+An optional date for when this token should expire.
+
 =back
 
 Returns a tuple of (status, msg) on failure and (id, msg, authstring) on
@@ -110,10 +114,14 @@ sub Create {
 
     my $token = $self->_GenerateToken;
 
+    # delete Expires arg if it is empty
+    delete $args{Expires}
+        unless $args{Expires};
+
     my ( $id, $msg ) = $self->SUPER::Create(
         Token => $self->_CryptToken($token),
         map { $_ => $args{$_} } grep {exists $args{$_}}
-            qw(Owner Description),
+            qw(Owner Description Expires),
     );
     unless ($id) {
         return (0, $self->loc("Authentication token create failed: [_1]", $msg));
@@ -366,6 +374,7 @@ sub _CoreAccessible {
         Created       => { read => 1, type => 'datetime',       default => '',  auto => 1 },
         LastUpdatedBy => { read => 1, type => 'int(11)',        default => '0', auto => 1 },
         LastUpdated   => { read => 1, type => 'datetime',       default => '',  auto => 1 },
+        Expires       => { read => 1, type => 'datetime',       default => '',  auto => 1 },
     }
 }
 
