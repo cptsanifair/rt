@@ -277,6 +277,19 @@ sub LastUsedObj {
     return $date;
 }
 
+=head2 ExpiresObj
+
+L</Expires> as an L<RT::Date> object.
+
+=cut
+
+sub ExpiresObj {
+    my $self = shift;
+    my $date = RT::Date->new($self->CurrentUser);
+    $date->Set(Format => 'sql', Value => $self->Expires);
+    return $date;
+}
+
 =head1 PRIVATE METHODS
 
 Documented for internal use only, do not call these from outside
