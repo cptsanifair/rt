@@ -1,0 +1,14 @@
+use strict;
+use warnings;
+
+our @Templates = (
+
+               {   Queue       => '0',
+                   Name        => 'Email Auth Token Expiry',    # loc
+                   Description => 'Email template for emailing users about expiring auth tokens',  # loc
+                   Content => q[Subject: Expiring Auth Token Notification
+
+{ $Argument }
+],
+               },
+);
