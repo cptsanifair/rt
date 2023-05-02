@@ -112,8 +112,10 @@ class LifecycleModel {
         self.DeleteLinksForNode(self.nodes[index]);
 
         self.DeleteRights(d);
+        self.DeleteFromStateTypes(d);
         self.DeleteDefaults(d);
         self.DeleteActions(d);
+        self.DeleteFromCreateNodes(d);
 
         self.nodes.splice(index, 1);
     }
@@ -139,7 +141,14 @@ class LifecycleModel {
 
         jQuery.each(self.config.defaults, function (key, value) {
             if (value && value.toLowerCase() === d.name.toLowerCase()) {
-                delete self.config.defaults[key];
+                if (key === 'on_create') {
+                    // Check if we have a status after the one to be delete
+                    // to replace the on_create default
+                    self.config.defaults.on_create = self.config.initial[0]
+                        || self.config.active[0] || null;
+                } else {
+                    delete self.config.defaults[key];
+                }
             }
         });
     }
@@ -194,6 +203,26 @@ class LifecycleModel {
                 return false;
             }
             return true;
+        });
+    }
+
+    DeleteFromCreateNodes(d) {
+        var self = this;
+        var index = self.create_nodes.findIndex(function(x) { return x == d.name });
+        if ( index >= 0 ) {
+            self.create_nodes.splice(index, 1);
+        }
+    }
+
+    DeleteFromStateTypes(d) {
+        var self = this;
+        ['initial', 'active', 'inactive'].forEach(function(type) {
+            self.config[type].filter(function (status) {
+                return status.toLowerCase() === d.name.toLowerCase();
+            }).forEach(function (status) {
+                var index = self.config[type].indexOf(status);
+                self.config[type].splice(index, 1);
+            });
         });
     }
 
