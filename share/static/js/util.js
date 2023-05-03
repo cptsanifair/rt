@@ -724,7 +724,7 @@ jQuery(function() {
     });
 
     jQuery(".card .card-header .toggle").each(function() {
-        var e = jQuery(jQuery(this).attr('data-target'));
+        var e = jQuery(jQuery(this).attr('data-bs-target'));
         e.on('hide.bs.collapse', function () {
             createCookie(e.attr('id'),0,365);
             e.closest('div.titlebox').find('div.card-header span.right').addClass('invisible');
@@ -736,7 +736,7 @@ jQuery(function() {
     });
 
     jQuery(".card .accordion-item .toggle").each(function() {
-        var e = jQuery(jQuery(this).attr('data-target'));
+        var e = jQuery(jQuery(this).attr('data-bs-target'));
         e.on('hide.bs.collapse', function () {
             createCookie(e.attr('id'),0,365);
         });
@@ -746,7 +746,7 @@ jQuery(function() {
     });
 
     jQuery(".card .card-body .toggle").each(function() {
-        var e = jQuery(jQuery(this).attr('data-target'));
+        var e = jQuery(jQuery(this).attr('data-bs-target'));
         e.on('hide.bs.collapse', function (event) {
             event.stopPropagation();
         });
@@ -1203,7 +1203,7 @@ jQuery(function () {
 
     var cancelInlineEdit = function (editor) {
         var cell = editor.closest('td');
-        cell.find('[data-toggle=tooltip]').tooltip('hide');
+        cell.find('[data-bs-toggle=tooltip]').tooltip('hide');
 
         cell.removeClass('editing');
         editor.get(0).reset();
@@ -1217,7 +1217,7 @@ jQuery(function () {
 
     var submitInlineEdit = function (editor) {
         var cell = editor.closest('td');
-        cell.find('[data-toggle=tooltip]').tooltip('hide');
+        cell.find('[data-bs-toggle=tooltip]').tooltip('hide');
 
         if (!inlineEditEnabled) {
             return;
@@ -1416,7 +1416,7 @@ function toggle_hide_unset(e) {
 // enable bootstrap tooltips
 jQuery(function() {
     jQuery("body").tooltip({
-        selector: '[data-toggle=tooltip]',
+        selector: '[data-bs-toggle=tooltip]',
         trigger: 'hover focus'
     });
 });
