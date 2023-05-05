@@ -281,15 +281,18 @@
 </&>
 
 <&| /Elements/LabeledValue, Label => loc('Time Estimated') &>
-    <& /Elements/EditTimeValue, Name => 'TimeEstimated', Default => $ARGS{TimeEstimated} || '' &>
+  <& /Elements/EditTimeValue, Name => 'TimeEstimated', Default => $ARGS{TimeEstimated} || '',
+      InUnits => $ARGS{'Submitted-TimeEstimated-TimeUnits'} || '' &>
 </&>
 
 <&| /Elements/LabeledValue, Label => loc('Time Worked') &>
-<& /Elements/EditTimeValue, Name => 'TimeWorked', Default => $ARGS{TimeWorked} || '' &>
+  <& /Elements/EditTimeValue, Name => 'TimeWorked', Default => $ARGS{TimeWorked} || '',
+      InUnits => $ARGS{'Submitted-TimeWorked-TimeUnits'} || '' &>
 </&>
 
 <&| /Elements/LabeledValue, Label => loc('Time Left') &>
-  <& /Elements/EditTimeValue, Name => 'TimeLeft', Default => $ARGS{TimeLeft} || '' &>
+  <& /Elements/EditTimeValue, Name => 'TimeLeft', Default => $ARGS{TimeLeft} || '',
+      InUnits => $ARGS{'Submitted-TimeLeft-TimeUnits'} || '' &>
 </&>
 </div>
 </&>

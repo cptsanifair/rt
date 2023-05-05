@@ -115,6 +115,7 @@ unless ( @fields ) {
                     args => {
                         Name => $field,
                         Default => $defaults{$field} || $TicketObj->$field,
+                        InUnits => $defaults{'Submitted-' . $field . '-TimeUnits'} || '',
                     }
                 }
             } ('Time Estimated', 'Time Worked', 'Time Left')

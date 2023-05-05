@@ -63,7 +63,6 @@ $InUnits => ''
 <%INIT>
 $ValueName ||= $Name;
 $UnitName  ||= ($Name||$ValueName) . '-TimeUnits';
-$InUnits ||= $m->request_args->{ $UnitName };
 $InUnits ||= RT->Config->Get('DefaultTimeUnitsToHours', $session{'CurrentUser'}) ? 'hours' : 'minutes';
 
 if ($Default && $InUnits eq 'hours') {

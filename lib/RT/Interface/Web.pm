@@ -1466,6 +1466,15 @@ sub PreprocessTimeUpdates {
 
     # This code validates and canonicalizes time inputs(including hours into minutes)
     foreach my $field ( keys %$ARGS ) {
+
+        if ( $field =~ /-TimeUnits$/i ) {
+            # Stash the original submitted time units so we can restore them
+            # if the page is re-rendered without a submit.
+            # Do this first so we can restore the original units regardless
+            # of the processing that follows.
+            $ARGS->{"Submitted-$field"} = $ARGS->{$field};
+        }
+
         next unless $field =~ /^(.*)-TimeUnits$/i && $ARGS->{$1};
         my $local = $1;
         $ARGS->{$local} =~ s{\b (?: (\d+) \s+ )? (\d+)/(\d+) \b}
