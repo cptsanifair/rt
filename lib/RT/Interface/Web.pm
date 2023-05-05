@@ -750,14 +750,17 @@ sub ProcessPostRedirectGet {
     # It's also required for Turbo-submitted forms.
 
     if ( RequestENV('REQUEST_METHOD') eq 'POST' ) {
-        # Stash the submitted args in the session
-        my $post_args_ref = $HTML::Mason::Commands::m->request_args();
 
+        # Handle any Attachments first because they can't be stashed in the
+        # session as part of ARGS.
+        HTML::Mason::Commands::ProcessAttachments( ARGSRef => $ARGS, RemoveARG => 1 );
+
+        # Stash the submitted args in the session
         my $key = Digest::MD5::md5_hex( rand(1024) );
         RT::Interface::Web::Session::Set(
             Key    => 'POST_ARGSRef',
             SubKey => $key,
-            Value  => $post_args_ref,
+            Value  => $ARGS,
         );
 
         HTML::Mason::Commands::MaybeRedirectForResults( Force => 1, Key => $key );
@@ -2852,6 +2855,7 @@ sub ProcessAttachments {
         # For back-compatibility, CheckSize is not enabled by default. But for
         # callers that mean to check returned values, it's safe to enable.
         CheckSize => wantarray ? 1 : 0,
+        RemoveARG => 0,  # Remove the attachment from ARGS after processing?
         @_
     );
 
@@ -2904,6 +2908,10 @@ sub ProcessAttachments {
             SubSubKey => $file_path,
             Value     => $attachment,
         );
+
+        if ( $args{RemoveARG} ) {
+            delete $args{'ARGSRef'}{'Attach'};
+        }
     }
 
     return 1;
