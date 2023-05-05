@@ -49,7 +49,7 @@ diag $url if $ENV{TEST_VERBOSE};
     is( $agent->status, 200, "Fetched the page ok");
 
     ok( $agent->content =~ /Your username or password is incorrect/i, "Found the error message");
-    like( $agent->uri, qr{/NoAuth/Login\.html$}, "now on /NoAuth/Login.html" );
+    like( $agent->uri, qr{/NoAuth/Login\.html\?results}, "now on /NoAuth/Login.html" );
     $agent->warning_like(qr/FAILED LOGIN for root/, "got failed login warning");
 
     $agent->logout();
@@ -112,7 +112,7 @@ for my $path (qw(Prefs/Other.html /Prefs/Other.html)) {
     is( $agent->status, 200, "Fetched the page ok");
 
     ok( $agent->content =~ /Your username or password is incorrect/i, "Found the error message");
-    like( $agent->uri, qr{/NoAuth/Login\.html$}, "still on /NoAuth/Login.html" );
+    like( $agent->uri, qr{/NoAuth/Login\.html\?results}, "still on /NoAuth/Login.html" );
     $agent->warning_like(qr/FAILED LOGIN for root/, "got failed login warning");
 
     # try to login again
