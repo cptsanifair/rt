@@ -744,6 +744,11 @@ sub InitializeMenu {
 sub ProcessPostRedirectGet {
     my $ARGS = shift;
 
+    if ($HTML::Mason::Commands::m->request_comp->path =~ m{^/REST/\d+\.\d+/}) {
+        # Don't redirect for REST, no Turbo needed
+        return $ARGS;
+    }
+
     # Respond immediately to a POST with a 303. This helps avoid
     # double-submits on forms. See:
     # https://en.wikipedia.org/wiki/Post/Redirect/Get
