@@ -152,6 +152,7 @@ sub JSFiles {
         jquery.jgrowl.min.js
         clipboard.min.js
         htmx.min.js
+        rt-htmx.js
         }, RT->Config->Get('JSFiles');
 }
 
