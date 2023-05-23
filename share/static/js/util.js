@@ -699,7 +699,7 @@ function loadCollapseStates() {
     }
 }
 
-jQuery(function() {
+document.addEventListener("htmx:load", function() {
     ReplaceAllTextareas();
     jQuery('select.chosen.CF-Edit').chosen({ width: '20em', placeholder_text_multiple: ' ', no_results_text: ' ', search_contains: true });
     AddAttachmentWarning();
