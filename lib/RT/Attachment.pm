@@ -1345,6 +1345,19 @@ sub __DependsOn {
     );
     push( @$list, $objs );
 
+    # fulltext index
+    my $fts = RT->Config->Get('FullTextSearch');
+    if ( $fts && $fts->{Indexed} && $fts->{Table} ) {
+        require RT::Shredder::RawRecord;
+        push @$list, RT::Shredder::RawRecord->new(
+            CurrentUser => $self->CurrentUser,
+            Table => $fts->{Table},
+            Columns => {
+                id => $self->Id,
+            },
+        );
+    }
+
     $deps->_PushDependencies(
         BaseObject => $self,
         Flags => RT::Shredder::Constants::DEPENDS_ON,
