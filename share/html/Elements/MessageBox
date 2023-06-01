@@ -80,7 +80,26 @@ my $message = '';
 if ( $QuoteTransaction ) {
     my $transaction = RT::Transaction->new( $session{'CurrentUser'} );
     $transaction->Load( $QuoteTransaction );
-    $message = $transaction->Content( Quote => 1, Type  => $Type );
+
+    if ( $transaction->Id && !$QuoteContent ) {
+        $message = $transaction->Content( Quote => 1, Type  => $Type );
+    } else {
+        $message = RT::Transaction->QuoteContent(
+            Quote => 1,
+            Type  => $Type,
+            Content => $QuoteContent,
+            ContentType => $QuoteContentType,
+            $transaction->Id? (QuoteHeader => $transaction->QuoteHeader) : (),
+        );
+    }
+}
+elsif ( $QuoteContent ) {
+    $message = RT::Transaction->QuoteContent(
+        Type => $Type,
+        Quote => 1,
+        Content => $QuoteContent,
+        ContentType => $QuoteContentType,
+    );
 }
 
 my $signature = $session{'CurrentUser'}->UserObj->Signature // "";
@@ -145,6 +164,8 @@ if ($Width) {
 </%INIT>
 <%ARGS>
 $QuoteTransaction          => undef
+$QuoteContent              => undef
+$QuoteContentType          => undef
 $Name                      => 'Content'
 $Default                   => ''
 $Width                     => RT->Config->Get('MessageBoxWidth', $session{'CurrentUser'} )
